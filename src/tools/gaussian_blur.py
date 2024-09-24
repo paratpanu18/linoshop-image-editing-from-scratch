@@ -50,13 +50,13 @@ def convolution(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
             for j in range(image_width):
                 # Extract the region of interest for the current channel
                 region = padded_image[i:i+kernel_height, j:j+kernel_width]
-                
-                # Perform element-wise multiplication and sum the results
+            
+                # Dot product of the region and the kernel
                 output[i, j, c] = np.sum(region * kernel)
 
     return output
 
-def gaussian_blur(image, kernel_size=5, sigma=1) -> np.ndarray:
+def gaussian_blur(image: np.ndarray, kernel_size:int = 5, sigma: int = 1) -> np.ndarray:
     """
     Apply Gaussian blur to an image.
 
@@ -64,7 +64,6 @@ def gaussian_blur(image, kernel_size=5, sigma=1) -> np.ndarray:
     :param kernel_size: The size of the Gaussian kernel.
     :param sigma: The standard deviation of the Gaussian distribution.
     :return: The blurred image.
-
     """
 
     kernel = create_gaussian_kernel(kernel_size, sigma)
