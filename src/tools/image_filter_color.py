@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 def apply_cool_tone(image: np.ndarray) -> np.ndarray:
     """
@@ -7,6 +8,10 @@ def apply_cool_tone(image: np.ndarray) -> np.ndarray:
     :param image: Input image in BGR format (height, width, 3).
     :return: Image with cool tone filter applied.
     """
+    if len(image.shape) == 2:
+    # แปลงจาก grayscale เป็น RGB
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+
 
     R = image[:, :, 2]  # Red channel
     G = image[:, :, 1]  # Green channel
@@ -30,6 +35,9 @@ def apply_warm_tone(image: np.ndarray) -> np.ndarray:
     :param image: Input image in BGR format (height, width, 3).
     :return: Image with warm tone filter applied.
     """
+    if len(image.shape) == 2:
+    # แปลงจาก grayscale เป็น RGB
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
     R = image[:, :, 2]  # Red channel
     G = image[:, :, 1]  # Green channel
@@ -47,7 +55,11 @@ def apply_vintage_tone(image: np.ndarray) -> np.ndarray:
     """
     Apply a vintage tone filter to the image to give it a brown, aged look.
     """
-    
+    if len(image.shape) == 2:
+    # แปลงจาก grayscale เป็น RGB
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+
+
     B = image[:, :, 0] * 0.5  # ลดความเข้มของสีฟ้าอย่างมาก
     G = image[:, :, 1] * 0.7  # ลดความเข้มของสีเขียว
     R = image[:, :, 2] * 1.2  # เพิ่มความเข้มของสีแดง
