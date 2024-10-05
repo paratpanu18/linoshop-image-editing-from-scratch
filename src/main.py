@@ -24,7 +24,10 @@ from tkinter import filedialog, messagebox
 from tkinter import ttk
 from tools.gaussian_blur import gaussian_blur
 from tools.grayscale import rgb_to_grayscale
+
 from tools.image_filter_color import apply_cool_tone, apply_warm_tone, apply_vintage_tone, apply_high_contrast
+from tools.reshape import apply_circular_mask, apply_heart_mask 
+
 
 def select_image():
     """Open a file dialog to select an image."""
@@ -93,18 +96,9 @@ def convert_to_grayscale():
     global processed_image
     processed_image = grayscale_image
 
+
 def filter_image():
     """Apply the selected filter to the image."""
-    path = image_path.get()
-    if not path:
-        messagebox.showerror("Error", "Please select an image first.")
-        return
-
-    original_image = cv2.imread(path)
-    if original_image is None:
-        messagebox.showerror("Error", "Could not read the image.")
-        return
-
     selected_filter = filter_option.get()
     if selected_filter == "Cool Tone":
         filtered_image = apply_cool_tone(original_image)
@@ -118,6 +112,41 @@ def filter_image():
     # Display filtered image
     filtered_image_display = cv2.resize(filtered_image, (400, 400))
     cv2.imshow(f"{selected_filter} Image", filtered_image_display)
+    
+
+def apply_shape_mask(mask_function):
+    """Apply the selected shape mask to the grayscale image."""
+
+    path = image_path.get()
+    if not path:
+        messagebox.showerror("Error", "Please select an image first.")
+        return
+
+    original_image = cv2.imread(path)
+    if original_image is None:
+        messagebox.showerror("Error", "Could not read the image.")
+        return
+
+
+    # Apply the mask function (circle, star, or heart)
+    masked_image = mask_function(original_image)
+
+    # Resize and display masked image
+    masked_image_display = cv2.resize(masked_image, (400, 400))
+    cv2.imshow("Masked Image", masked_image_display)
+
+def apply_circular_mask_wrapper():
+    """Wrapper to apply circular mask."""
+    apply_shape_mask(apply_circular_mask)
+
+# def apply_star_mask_wrapper():
+#     """Wrapper to apply star mask."""
+#     apply_shape_mask(apply_star_mask)
+
+def apply_heart_mask_wrapper():
+    """Wrapper to apply heart mask."""
+    apply_shape_mask(apply_heart_mask)
+
 
 def close_windows():
     """Close all OpenCV windows."""
@@ -165,6 +194,15 @@ filter_menu.grid(row=4, column=1, pady=5)
 # Button to apply selected filter
 apply_filter_button = ttk.Button(frame, text="Apply Filter", command=filter_image)
 apply_filter_button.grid(row=5, column=0, columnspan=2, pady=10)
+
+circular_button = ttk.Button(frame, text="Apply Circle Mask", command=apply_circular_mask_wrapper)
+circular_button.grid(row=4, column=0, columnspan=2, pady=5)
+
+# star_button = ttk.Button(frame, text="Apply Star Mask", command=apply_star_mask_wrapper)
+# star_button.grid(row=4, column=0, columnspan=2, pady=5)
+
+heart_button = ttk.Button(frame, text="Apply Heart Mask", command=apply_heart_mask_wrapper)
+heart_button.grid(row=5, column=0, columnspan=2, pady=5)
 
 # Bind closing event to cleanup
 root.protocol("WM_DELETE_WINDOW", close_windows())
