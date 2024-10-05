@@ -99,6 +99,16 @@ def convert_to_grayscale():
 
 def filter_image():
     """Apply the selected filter to the image."""
+    path = image_path.get()
+    if not path:
+        messagebox.showerror("Error", "Please select an image first.")
+        return
+
+    original_image = cv2.imread(path)
+    if original_image is None:
+        messagebox.showerror("Error", "Could not read the image.")
+        return
+    
     selected_filter = filter_option.get()
     if selected_filter == "Cool Tone":
         filtered_image = apply_cool_tone(original_image)
@@ -196,13 +206,13 @@ apply_filter_button = ttk.Button(frame, text="Apply Filter", command=filter_imag
 apply_filter_button.grid(row=5, column=0, columnspan=2, pady=10)
 
 circular_button = ttk.Button(frame, text="Apply Circle Mask", command=apply_circular_mask_wrapper)
-circular_button.grid(row=4, column=0, columnspan=2, pady=5)
+circular_button.grid(row=6, column=0, columnspan=2, pady=5)
 
 # star_button = ttk.Button(frame, text="Apply Star Mask", command=apply_star_mask_wrapper)
 # star_button.grid(row=4, column=0, columnspan=2, pady=5)
 
 heart_button = ttk.Button(frame, text="Apply Heart Mask", command=apply_heart_mask_wrapper)
-heart_button.grid(row=5, column=0, columnspan=2, pady=5)
+heart_button.grid(row=7, column=0, columnspan=2, pady=5)
 
 # Bind closing event to cleanup
 root.protocol("WM_DELETE_WINDOW", close_windows())
