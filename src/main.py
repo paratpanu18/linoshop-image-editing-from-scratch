@@ -24,7 +24,10 @@ from tkinter import filedialog, messagebox
 from tkinter import ttk
 from tools.gaussian_blur import gaussian_blur
 from tools.grayscale import rgb_to_grayscale
+
+from tools.image_filter_color import apply_cool_tone, apply_warm_tone, apply_vintage_tone, apply_high_contrast
 from tools.reshape import apply_circular_mask, apply_heart_mask 
+
 
 def select_image():
     """Open a file dialog to select an image."""
@@ -93,8 +96,27 @@ def convert_to_grayscale():
     global processed_image
     processed_image = grayscale_image
 
+
+def filter_image():
+    """Apply the selected filter to the image."""
+    selected_filter = filter_option.get()
+    if selected_filter == "Cool Tone":
+        filtered_image = apply_cool_tone(original_image)
+    elif selected_filter == "Warm Tone":
+        filtered_image = apply_warm_tone(original_image)
+    elif selected_filter == "Vintage Tone":
+        filtered_image = apply_vintage_tone(original_image)
+    elif selected_filter == "High Contrast":
+        filtered_image = apply_high_contrast(original_image)
+
+    # Display filtered image
+    filtered_image_display = cv2.resize(filtered_image, (400, 400))
+    cv2.imshow(f"{selected_filter} Image", filtered_image_display)
+    
+
 def apply_shape_mask(mask_function):
     """Apply the selected shape mask to the grayscale image."""
+
     path = image_path.get()
     if not path:
         messagebox.showerror("Error", "Please select an image first.")
@@ -104,6 +126,8 @@ def apply_shape_mask(mask_function):
     if original_image is None:
         messagebox.showerror("Error", "Could not read the image.")
         return
+
+
     # Apply the mask function (circle, star, or heart)
     masked_image = mask_function(original_image)
 
@@ -122,7 +146,7 @@ def apply_circular_mask_wrapper():
 def apply_heart_mask_wrapper():
     """Wrapper to apply heart mask."""
     apply_shape_mask(apply_heart_mask)
-    
+
 
 def close_windows():
     """Close all OpenCV windows."""
@@ -130,10 +154,11 @@ def close_windows():
 
 # Create the main window
 root = tk.Tk()
-root.title("Gaussian Blur Application")
+root.title("Filter Image Application")
 
 # StringVar to store image path
 image_path = tk.StringVar()
+filter_option = tk.StringVar()
 
 # Frame for controls
 frame = ttk.Frame(root, padding="10")
@@ -158,6 +183,17 @@ apply_button.grid(row=2, column=0, columnspan=2, pady=10)
 # Add button to convert to grayscale
 convert_button = ttk.Button(frame, text="Grayscale", command=convert_to_grayscale)
 convert_button.grid(row=3, column=0, columnspan=2, pady=5)
+ 
+# Dropdown for select filter
+# filter_label = ttk.Label(frame, text="Select Filter")
+# filter_label.grid(row=4, column=1, pady=5)
+
+filter_menu = ttk.OptionMenu(frame, filter_option, "Cool Tone", "Cool Tone", "Warm Tone", "Vintage Tone", "High Contrast")
+filter_menu.grid(row=4, column=1, pady=5)
+
+# Button to apply selected filter
+apply_filter_button = ttk.Button(frame, text="Apply Filter", command=filter_image)
+apply_filter_button.grid(row=5, column=0, columnspan=2, pady=10)
 
 circular_button = ttk.Button(frame, text="Apply Circle Mask", command=apply_circular_mask_wrapper)
 circular_button.grid(row=4, column=0, columnspan=2, pady=5)

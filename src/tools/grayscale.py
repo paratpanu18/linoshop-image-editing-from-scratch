@@ -7,9 +7,9 @@ def rgb_to_grayscale(image: np.ndarray) -> np.ndarray:
     :param image: Input image in RGB format (height, width, 3).
     :return: Grayscale image (height, width).
     """
-    R = image[:, :, 2]  # Red channel
-    G = image[:, :, 1]  # Green channel
     B = image[:, :, 0]  # Blue channel
+    G = image[:, :, 1]  # Green channel
+    R = image[:, :, 2]  # Red channel
     
     # Apply the formula to convert to grayscale
     grayscale_image = 0.299 * R + 0.587 * G + 0.114 * B
