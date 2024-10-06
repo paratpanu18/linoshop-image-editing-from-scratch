@@ -1,80 +1,68 @@
+from enum import Enum
 import numpy as np
 import cv2
 
-def apply_cool_tone(image: np.ndarray) -> np.ndarray:
+class FilterType(Enum):
+    COOL_TONE = "Cool Tone"
+    WARM_TONE = "Warm Tone"
+    VINTAGE_TONE = "Vintage Tone"
+    HIGH_CONTRAST = "High Contrast"
+
+FILTER_SETTINGS = {
+    FilterType.COOL_TONE: {
+        'scaling': (1.25, 1.05, 0.8), 
+        'offset': (0, 0, 0)        
+    },
+    FilterType.WARM_TONE: {
+        'scaling': (0.85, 1.05, 1.3),
+        'offset': (0, 0, 0)
+    },
+    FilterType.VINTAGE_TONE: {
+        'scaling': (0.5, 0.7, 1.2),
+        'offset': (0, 30, 15)
+    },
+    FilterType.HIGH_CONTRAST: {
+        'scaling': (1.5, 1.5, 1.5),
+        'offset': (-50, -50, -50)
+    }
+}
+
+def apply_filter(image: np.ndarray, filter_type: FilterType) -> np.ndarray:
     """
-    Apply a cool tone filter to the image by manually adjusting the weights of RGB channels.
-        
-    :param image: Input image in BGR format (height, width, 3).
-    :return: Image with cool tone filter applied.
-    """
-    if len(image.shape) == 2:
-    # แปลงจาก grayscale เป็น RGB
-        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-
-
-    R = image[:, :, 2]  # Red channel
-    G = image[:, :, 1]  # Green channel
-    B = image[:, :, 0]  # Blue channel
-
-    #การทำให้ภาพเป็นโทนเย็นนั้น จะต้องเน้นเฉดสีฟ้า (Blue) และสีเขียว (Green) โดยลดโทนสีแดง (Red) ซึ่งเป็นโทนสีร้อนที่ทำให้ภาพดูอบอุ่นหรือสว่าง
-
-        #np.clip เป็นการ limit values ให้อยู๋ในrangeที่ต้องการ {syntax : np.clip(arr, min_value, max_value)}
-    R = np.clip(R * 0.8, 0, 255)   #decrease red 10%
-    G = np.clip(G * 1.05, 0, 255)   #increase green 10%
-    B = np.clip(B * 1.25, 0, 255)   #increase blue 20%
-                            #np.dstack เป็นการนำ array มาmergeกัน {syntax : np.dstack((arr1, arr2, ...))}
-    cool_tone_image = np.dstack((B, G, R)).astype(np.uint8)   #ลำดับใน dstack(B, G, R) เสมอ
-
-    return cool_tone_image
-    
-def apply_warm_tone(image: np.ndarray) -> np.ndarray:
-    """
-    Apply a warm tone filter to the image by adjusting the weights of RGB channels.
+    Apply the specified filter to the image.
     
     :param image: Input image in BGR format (height, width, 3).
-    :return: Image with warm tone filter applied.
+    :param filter_type: The type of filter to apply.
+    :return: Image with the specified filter applied.
     """
+    # If the image is grayscale, convert it to BGR format
     if len(image.shape) == 2:
-    # แปลงจาก grayscale เป็น RGB
         image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
-    R = image[:, :, 2]  # Red channel
-    G = image[:, :, 1]  # Green channel
-    B = image[:, :, 0]  # Blue channel
-
-    R = np.clip(R * 1.3, 0, 255)   #increase red 20%
-    G = np.clip(G * 1.05, 0, 255)   #increase green 10%
-    B = np.clip(B * 0.85, 0, 255)   #decrease blue 10%
-
-    warm_tone_image = np.dstack((B, G, R)).astype(np.uint8)
-
-    return warm_tone_image
+    # Retrieve filter settings for the specified filter type
+    settings = FILTER_SETTINGS[filter_type]
     
-def apply_vintage_tone(image: np.ndarray) -> np.ndarray:
+    return apply_rgb_adjustment(image, settings['scaling'], settings['offset'])
+
+def apply_rgb_adjustment(image: np.ndarray, scaling: tuple, offset: tuple) -> np.ndarray:
     """
-    Apply a vintage tone filter to the image to give it a brown, aged look.
+    Apply RGB channel scaling and offset adjustments to the image.
+    
+    :param image: Input image in BGR format (height, width, 3).
+    :param scaling: Tuple of scaling factors for (B, G, R) channels.
+    :param offset: Tuple of offset values for (B, G, R) channels.
+    :return: Adjusted image with the given RGB scaling and offset.
     """
-    if len(image.shape) == 2:
-    # แปลงจาก grayscale เป็น RGB
-        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    B = image[:, :, 0] * scaling[0] + offset[0]
+    G = image[:, :, 1] * scaling[1] + offset[1]
+    R = image[:, :, 2] * scaling[2] + offset[2]
 
-
-    B = image[:, :, 0] * 0.5  # ลดความเข้มของสีฟ้าอย่างมาก
-    G = image[:, :, 1] * 0.7  # ลดความเข้มของสีเขียว
-    R = image[:, :, 2] * 1.2  # เพิ่มความเข้มของสีแดง
-
-    # เพิ่มความเป็นสีเหลืองโดยเพิ่มค่าสีแดงและสีเขียวเล็กน้อย
+    # Clip values to ensure they are in the valid range [0, 255]
     B = np.clip(B, 0, 255)
-    G = np.clip(G + 30, 0, 255)  # เพิ่มสีเขียวเพื่อให้เกิดสีน้ำตาล
-    R = np.clip(R + 15, 0, 255)  # เพิ่มสีแดงเล็กน้อยเพื่อเสริมเอฟเฟกต์เก่า
+    G = np.clip(G, 0, 255)
+    R = np.clip(R, 0, 255)
 
-    vintage_tone_image = np.dstack((B, G, R)).astype(np.uint8)
+    # Merge the adjusted channels back into a BGR image
+    adjusted_image = np.dstack((B, G, R)).astype(np.uint8)
 
-    return vintage_tone_image
-    
-def apply_high_contrast(image: np.ndarray) -> np.ndarray:
-    contrast_image = np.clip(image * 1.5 - 50, 0, 255)
-    return contrast_image.astype(np.uint8)
-
-
+    return adjusted_image
