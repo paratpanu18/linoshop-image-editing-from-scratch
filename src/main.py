@@ -185,7 +185,7 @@ blur_menu.grid(row=2, column=2, padx=5)
 blur_radius_label = ttk.Label(frame, text="Blur Radius (Kernel Size):")
 blur_radius_label.grid(row=3, column=0, pady=5)
 
-blur_radius = tk.IntVar(value=5)  # Default value
+blur_radius = tk.IntVar(value=25)  # Default value
 blur_radius_slider = ttk.Scale(frame, from_=1, to=50, variable=blur_radius, orient=tk.HORIZONTAL)
 blur_radius_slider.grid(row=3, column=1, pady=5)
 
