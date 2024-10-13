@@ -2,7 +2,6 @@ from enum import Enum
 import numpy as np
 import cv2
 from tools.grayscale import rgb_to_grayscale
-from tools.blur import apply_blur
 
 class FilterType(Enum):
     COOL_TONE = "Cool Tone"
@@ -72,10 +71,9 @@ def apply_outline(image: np.ndarray) -> np.ndarray:
     :return: Image with outline effect applied.
     """
 
-    gray = rgb_to_grayscale(image)
-    #Convert to grayscale for Easy to edge detection 
-    #it reduces the complexity of processing three color channels (BGR) to just one channel (grayscale).
-
+    grayscale_image = rgb_to_grayscale(image)  # Change variable name to grayscale_image
+    # Convert to grayscale for easier edge detection 
+    # It reduces the complexity of processing three color channels (BGR) to just one channel (grayscale).
 
     # Define Sobel kernels for edge detection
     sobel_x = np.array([[1, 0, -1],
@@ -87,23 +85,23 @@ def apply_outline(image: np.ndarray) -> np.ndarray:
                         [-1, -2, -1]], dtype=np.float32)  # Vertical edges
 
     # Get image dimensions
-    height, width = gray.shape
+    height, width = grayscale_image.shape
 
     # Create an empty array for the output image
-    outline_image = np.zeros_like(gray)
+    outline_image = np.zeros_like(grayscale_image)
 
     # Apply the Sobel filter to detect edges
     for y in range(1, height - 1):
         for x in range(1, width - 1):
             # Convolution for Sobel X
-            gx = (sobel_x[0, 0] * gray[y - 1, x - 1] + sobel_x[0, 1] * gray[y - 1, x] + sobel_x[0, 2] * gray[y - 1, x + 1] +
-                  sobel_x[1, 0] * gray[y, x - 1] + sobel_x[1, 1] * gray[y, x] + sobel_x[1, 2] * gray[y, x + 1] +
-                  sobel_x[2, 0] * gray[y + 1, x - 1] + sobel_x[2, 1] * gray[y + 1, x] + sobel_x[2, 2] * gray[y + 1, x + 1])
+            gx = (sobel_x[0, 0] * grayscale_image[y - 1, x - 1] + sobel_x[0, 1] * grayscale_image[y - 1, x] + sobel_x[0, 2] * grayscale_image[y - 1, x + 1] +
+                  sobel_x[1, 0] * grayscale_image[y, x - 1] + sobel_x[1, 1] * grayscale_image[y, x] + sobel_x[1, 2] * grayscale_image[y, x + 1] +
+                  sobel_x[2, 0] * grayscale_image[y + 1, x - 1] + sobel_x[2, 1] * grayscale_image[y + 1, x] + sobel_x[2, 2] * grayscale_image[y + 1, x + 1])
             
             # Convolution for Sobel Y
-            gy = (sobel_y[0, 0] * gray[y - 1, x - 1] + sobel_y[0, 1] * gray[y - 1, x] + sobel_y[0, 2] * gray[y - 1, x + 1] +
-                  sobel_y[1, 0] * gray[y, x - 1] + sobel_y[1, 1] * gray[y, x] + sobel_y[1, 2] * gray[y, x + 1] +
-                  sobel_y[2, 0] * gray[y + 1, x - 1] + sobel_y[2, 1] * gray[y + 1, x] + sobel_y[2, 2] * gray[y + 1, x + 1])
+            gy = (sobel_y[0, 0] * grayscale_image[y - 1, x - 1] + sobel_y[0, 1] * grayscale_image[y - 1, x] + sobel_y[0, 2] * grayscale_image[y - 1, x + 1] +
+                  sobel_y[1, 0] * grayscale_image[y, x - 1] + sobel_y[1, 1] * grayscale_image[y, x] + sobel_y[1, 2] * grayscale_image[y, x + 1] +
+                  sobel_y[2, 0] * grayscale_image[y + 1, x - 1] + sobel_y[2, 1] * grayscale_image[y + 1, x] + sobel_y[2, 2] * grayscale_image[y + 1, x + 1])
             
             # Calculate gradient magnitude
             magnitude = np.sqrt(gx ** 2 + gy ** 2)
@@ -112,7 +110,7 @@ def apply_outline(image: np.ndarray) -> np.ndarray:
     # Normalize the outline image to the range [0, 255] for calculate threshold value 
     outline_image = (outline_image / outline_image.max() * 255).astype(np.uint8)
 
-    # grayscale outline image is converted back to a 3-channel BGR image
+    # Grayscale outline image is converted back to a 3-channel BGR image
     color_outline_image = cv2.cvtColor(outline_image, cv2.COLOR_GRAY2BGR)
 
     # Set a threshold to keep only significant edges
@@ -120,6 +118,7 @@ def apply_outline(image: np.ndarray) -> np.ndarray:
     color_outline_image[mask == 0] = (255, 255, 255)  # (And below 50 are set to white)
 
     return color_outline_image
+
 
 def apply_rgb_adjustment(image: np.ndarray, scaling: tuple, offset: tuple) -> np.ndarray:
     """
