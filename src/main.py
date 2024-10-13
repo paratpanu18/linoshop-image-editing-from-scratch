@@ -198,7 +198,7 @@ blur_radius_slider.grid_remove()
 # Dropdown for filter selection
 filter_label = ttk.Label(frame, text="Select a Filter:")
 filter_label.grid(row=4, column=0, pady=5)
-filter_menu = ttk.OptionMenu(frame, filter_option, "None", "None", "Cool Tone", "Warm Tone", "Vintage Tone", "High Contrast")
+filter_menu = ttk.OptionMenu(frame, filter_option, "None", "None", "Cool Tone", "Warm Tone", "Vintage Tone", "High Contrast", "Invert", "Outline")
 filter_menu.grid(row=4, column=1, padx=5)
 
 # Dropdown for shape mask selection
