@@ -9,11 +9,12 @@ from PIL import Image, ImageTk
 from tools.blur import apply_blur, BlurType
 from tools.grayscale import rgb_to_grayscale
 from tools.image_filter_color import apply_filter, FilterType
-from tools.reshape import apply_circular_mask, apply_heart_mask
+from tools.reshape import apply_mask, MaskType
 from tools.rotate import rotate_image
 
 filter_list = [filter.value for filter in FilterType]
 blur_option_list = [blur.value for blur in BlurType]
+mask_list = [mask.value for mask in MaskType]
 
 undo_stack = []
 redo_stack = []
@@ -159,10 +160,9 @@ def apply_filters():
         processed_image = apply_filter(processed_image, filter_type)
 
     # Apply shape mask if selected
-    if mask_option.get() == "Circle Mask":
-        processed_image = apply_circular_mask(processed_image)
-    elif mask_option.get() == "Heart Mask":
-        processed_image = apply_heart_mask(processed_image)
+    if mask_option.get() != "None":
+        mask_type = MaskType(mask_option.get())
+        processed_image = apply_mask(processed_image, mask_type)
 
     update_processed_image(processed_image)
 
@@ -291,7 +291,7 @@ filter_menu.grid(row=4, column=1, padx=5)
 mask_label = ttk.Label(tools_frame, text="Mask:")
 mask_label.grid(row=5, column=0, pady=10)
 
-mask_menu = ttk.OptionMenu(tools_frame, mask_option, "None", "None", "Circle Mask", "Heart Mask")
+mask_menu = ttk.OptionMenu(tools_frame, mask_option, "None", "None", *mask_list)
 mask_menu.grid(row=5, column=1)
 
 # Rotate Buttons

@@ -1,5 +1,28 @@
 import numpy as np
+from enum import Enum
 # from skimage.draw import polygon  # Make sure you have scikit-image installed
+
+class MaskType(Enum):
+    CIRCULAR = "Circular Mask"
+    HEART = "Heart Mask"
+    # STAR = "Star Mask"
+
+def apply_mask(image: np.ndarray, mask_type: MaskType) -> np.ndarray:
+    """
+    Apply the specified mask to the image.
+
+    :param image: Input image in RGB format (height, width, 3).
+    :param mask_type: The type of mask to apply.
+    :return: Image with the specified mask applied.
+    """
+    if mask_type == MaskType.CIRCULAR:
+        return apply_circular_mask(image)
+    elif mask_type == MaskType.HEART:
+        return apply_heart_mask(image)
+    # elif mask_type == MaskType.STAR:
+    #     return apply_star_mask(image)
+    else:
+        raise ValueError(f"Invalid mask type: {mask_type}")
 
 def apply_circular_mask(image: np.ndarray) -> np.ndarray:
     """
