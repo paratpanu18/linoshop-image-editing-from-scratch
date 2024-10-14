@@ -40,6 +40,14 @@ def redo():
         undo_stack.append(processed_image.copy())
         processed_image = redo_stack.pop()
         update_processed_image(processed_image)
+        
+def preview_original(event):
+    """Preview the original image when the mouse hovers over the image."""
+    previwed_image.config(image=original_image_tk)
+
+def show_processed_image(event):
+    """Show the processed image again when the mouse leaves the image."""
+    previwed_image.config(image=processed_image_tk)
 
 def select_image():
     """Open a file dialog to select an image."""
@@ -82,17 +90,14 @@ def load_image(image_path):
     previwed_image.config(image=original_image_tk)
 
 def toggle_blur():
-    """Enable or disable the blur radius slider based on the blur checkbox."""
+    """Enable or disable the blur method dropdown and blur radius slider based on the blur checkbox."""
     if blur_var.get():
-        blur_method_label.grid(row=2, column=1, pady=5)
-        blur_menu.grid(row=2, column=2, padx=5)
-        blur_radius_label.grid(row=3, column=1, pady=5)
-        blur_radius_slider.grid(row=3, column=2, pady=5)
+        blur_menu.configure(state="normal")
+        blur_radius_slider.configure(state="normal")
     else:
-        blur_method_label.grid_remove()
-        blur_menu.grid_remove()
-        blur_radius_label.grid_remove()
-        blur_radius_slider.grid_remove()
+        blur_menu.configure(state="disabled")
+        blur_radius_slider.configure(state="disabled")
+
 
 def set_loading(loading=True):
     """Show or hide the loading label."""
@@ -187,18 +192,22 @@ def preview_original(event):
 def show_processed_image(event):
     """Show the processed image again when the button is released."""
     update_processed_image(processed_image)
+    
+def save_image():
+    """Save the processed image to a file."""
+    path = filedialog.asksaveasfilename(
+        defaultextension=".png",
+        filetypes=[("PNG Files", "*.png"), ("JPEG Files", "*.jpg"), ("BMP Files", "*.bmp")]
+    )
+    if path:
+        cv2.imwrite(path, processed_image)
+        messagebox.showinfo("Success", "Image saved successfully.")
 
 def close_windows():
     """Close all OpenCV windows and quit the application."""
     cv2.destroyAllWindows()
     root.quit()
     root.destroy()
-
-import tkinter as tk
-from tkinter import filedialog, messagebox
-from tkinter import ttk
-from ttkthemes import ThemedTk  # For modern themes
-from PIL import Image, ImageTk
 
 # Initialize the main window with a modern theme
 root = ThemedTk(theme="arc")
@@ -234,6 +243,13 @@ tools_frame.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.W, tk.E), padx=10, pady
 select_button = ttk.Button(tools_frame, text="📂 Select Image", command=select_image)
 select_button.grid(row=0, column=0, pady=10)
 
+# Undo and Redo Buttons
+undo_button = ttk.Button(tools_frame, text="↩️ Undo", command=undo)
+undo_button.grid(row=0, column=1, pady=10)
+
+redo_button = ttk.Button(tools_frame, text="↪️ Redo", command=redo)
+redo_button.grid(row=0, column=2, pady=10)
+
 # Grayscale checkbox
 grayscale_checkbox = ttk.Checkbutton(tools_frame, text="🖤 Grayscale", variable=grayscale_var)
 grayscale_checkbox.grid(row=1, column=0, pady=10)
@@ -248,18 +264,21 @@ blur_method_label.grid(row=2, column=1, pady=10)
 blur_menu = ttk.OptionMenu(tools_frame, blur_option, "Gaussian Blur", *blur_option_list)
 blur_menu.grid(row=2, column=2, padx=5)
 
-blur_radius_label = ttk.Label(tools_frame, text="Blur Radius (Kernel Size):")
-blur_radius_label.grid(row=3, column=0, pady=10)
+blur_radius_label = ttk.Label(tools_frame, text="Blur Radius:")
+blur_radius_label.grid(row=3, column=2, pady=10)
 
 blur_radius = tk.IntVar(value=25)  # Default value
 blur_radius_slider = ttk.Scale(tools_frame, from_=1, to=50, variable=blur_radius, orient=tk.HORIZONTAL)
-blur_radius_slider.grid(row=3, column=1, pady=10)
+blur_radius_slider.grid(row=3, column=3, pady=10)
+
+blur_menu.configure(state="disabled")
+blur_radius_slider.configure(state="disabled")
 
 # Initially hide blur options
-blur_method_label.grid_remove()
-blur_menu.grid_remove()
-blur_radius_label.grid_remove()
-blur_radius_slider.grid_remove()
+# blur_method_label.grid_remove()
+# blur_menu.grid_remove()
+# blur_radius_label.grid_remove()
+# blur_radius_slider.grid_remove()
 
 # Filter Dropdown
 filter_label = ttk.Label(tools_frame, text="Filter:")
@@ -289,12 +308,8 @@ rotate_right_button.grid(row=6, column=2, padx=5)
 apply_button = ttk.Button(tools_frame, text="✨ Apply Filters", command=apply_filters_thread)
 apply_button.grid(row=7, column=0, pady=20)
 
-# Undo and Redo Buttons
-undo_button = ttk.Button(tools_frame, text="↩️ Undo", command=undo)
-undo_button.grid(row=8, column=0, pady=10)
-
-redo_button = ttk.Button(tools_frame, text="↪️ Redo", command=redo)
-redo_button.grid(row=8, column=1, pady=10)
+save_button = ttk.Button(tools_frame, text="💾 Save Image", command=save_image)
+save_button.grid(row=7, column=1, pady=20)
 
 # Frame for image preview on the right side
 image_frame = ttk.Frame(root, padding=20)
@@ -303,6 +318,9 @@ image_frame.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.W, tk.E), padx=10, pady
 # Preview label (Processed Image Display)
 previwed_image = ttk.Label(image_frame, borderwidth=2, relief="solid")
 previwed_image.grid(row=0, column=0, padx=20, pady=20)
+
+previwed_image.bind("<Enter>", preview_original)
+previwed_image.bind("<Leave>", show_processed_image)
 
 # Loading Label
 loading_label = ttk.Label(image_frame, text="Processing...", foreground="red", font=('Helvetica', 12, 'bold'))
