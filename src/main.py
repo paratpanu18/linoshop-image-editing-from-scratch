@@ -11,6 +11,7 @@ from tools.grayscale import rgb_to_grayscale
 from tools.image_filter_color import apply_filter, FilterType
 from tools.reshape import apply_mask, MaskType
 from tools.rotate import rotate_image
+from tools.cosine_similarity import cosine_similarity
 
 filter_list = [filter.value for filter in FilterType]
 blur_option_list = [blur.value for blur in BlurType]
@@ -185,6 +186,17 @@ def apply_rotate_image_thread(angle):
     """Wrapper to rotate image in a separate thread."""
     run_in_thread(apply_rotate_image, angle)
 
+def calculate_cosine_similarity():
+    """Calculate the cosine similarity between the original and processed image."""
+    global original_image, processed_image
+    if original_image is None:
+        messagebox.showerror("Error", "Please select an image first.")
+        return
+    
+    similarity = cosine_similarity(original_image, processed_image)
+    cosine_similarity_label.config(text=f"Cosine Similarity: {similarity:.4f} - {similarity * 100:.2f}%")
+
+    
 def preview_original(event):
     """Preview the original image when the button is pressed."""
     previwed_image.config(image=original_image_tk)
@@ -310,6 +322,16 @@ apply_button.grid(row=7, column=0, pady=20)
 
 save_button = ttk.Button(tools_frame, text="💾 Save Image", command=save_image)
 save_button.grid(row=7, column=1, pady=20)
+
+# Button to calculate cosine similarity
+cosine_button = ttk.Button(tools_frame, text="📊 Cosine Similarity", command= calculate_cosine_similarity )
+cosine_button.grid(row=8, column=1, pady=10)
+
+# Label to show cosine similarity value
+cosine_similarity_label = ttk.Label(tools_frame, text="Cosine Similarity: N/A")
+cosine_similarity_label.grid(row=8, column=2, pady=10, padx=10)
+
+
 
 # Frame for image preview on the right side
 image_frame = ttk.Frame(root, padding=20)
