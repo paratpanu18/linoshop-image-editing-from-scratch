@@ -1,6 +1,6 @@
 import numpy as np
 
-def rotate_function(angle: float, pos_x: int, pos_y: int):
+def rotate_function(rotation_matrix: np.ndarray, pos_x: int, pos_y: int):
     """
     Rotate a point around the origin (0, 0) by a given angle.
 
@@ -9,9 +9,6 @@ def rotate_function(angle: float, pos_x: int, pos_y: int):
     :param pos_y: Y-coordinate of the point.
     :return: Rotated point coordinates.
     """
-    angle_rad = np.radians(angle)
-    rotation_matrix = np.array([[np.cos(angle_rad), -np.sin(angle_rad)],
-                                 [np.sin(angle_rad), np.cos(angle_rad)]])
     point = np.array([pos_x, pos_y])
     rotated_point = np.dot(rotation_matrix, point)
     return rotated_point[0], rotated_point[1]
@@ -52,6 +49,9 @@ def rotate_image(image: np.ndarray, angle: float):
 
     # Create an empty output image with new dimensions
     rotated_image = np.zeros((new_height, new_width, image.shape[2]), dtype=image.dtype)
+    angle_rad = np.radians(angle)
+    rotation_matrix = np.array([[np.cos(angle_rad), -np.sin(angle_rad)],
+                                 [np.sin(angle_rad), np.cos(angle_rad)]])
 
     # Iterate over each pixel in the output image
     for y in range(new_height):
@@ -61,7 +61,7 @@ def rotate_image(image: np.ndarray, angle: float):
             rel_y = y - new_center_y
 
             # Rotate the point using the rotate_function
-            orig_x, orig_y = rotate_function(angle, rel_x, rel_y)
+            orig_x, orig_y = rotate_function(rotation_matrix, rel_x, rel_y)
 
             # Shift the rotated coordinates back to the original image space
             orig_x = int(orig_x + center_x)
