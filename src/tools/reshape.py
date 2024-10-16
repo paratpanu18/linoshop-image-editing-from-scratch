@@ -1,11 +1,9 @@
 import numpy as np
 from enum import Enum
-# from skimage.draw import polygon  # Make sure you have scikit-image installed
 
 class MaskType(Enum):
     CIRCULAR = "Circular Mask"
     HEART = "Heart Mask"
-    # STAR = "Star Mask"
 
 def apply_mask(image: np.ndarray, mask_type: MaskType) -> np.ndarray:
     """
@@ -45,30 +43,6 @@ def apply_circular_mask(image: np.ndarray) -> np.ndarray:
     masked_image[mask] = image[mask]
 
     return masked_image
-
-# def apply_star_mask(image: np.ndarray) -> np.ndarray:
-#     """
-#     Apply a star-shaped mask to a color image.
-
-#     :param image: Color image (height, width, 3).
-#     :return: Image with a star-shaped mask.
-#     """
-#     height, width = image.shape[:2]
-#     center_y, center_x = height // 2, width // 2
-#     radius = min(center_y, center_x) * 0.9
-
-#     # Define points for a star-shaped polygon (5-point star)
-#     points_y = np.array([center_y, center_y - radius, center_y, center_y + radius, center_y]) * 0.75
-#     points_x = np.array([center_x - radius, center_x, center_x + radius, center_x, center_x - radius]) * 0.75
-#     rr, cc = polygon(points_y, points_x, shape=image.shape[:2])
-
-#     # Create mask and apply it to the original image
-#     mask = np.zeros_like(image, dtype=bool)
-#     mask[rr, cc] = True
-#     masked_image = np.zeros_like(image)
-#     masked_image[mask] = image[mask]
-
-#     return masked_image
 
 def apply_heart_mask(image: np.ndarray) -> np.ndarray:
     """
