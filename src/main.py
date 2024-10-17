@@ -310,10 +310,10 @@ mask_menu.grid(row=5, column=1)
 rotate_label = ttk.Label(tools_frame, text="Rotate Image:")
 rotate_label.grid(row=6, column=0, pady=10)
 
-rotate_left_button = ttk.Button(tools_frame, text="⏪ Rotate Left", command=lambda: apply_rotate_image_thread(-90))
+rotate_left_button = ttk.Button(tools_frame, text="⏪ Rotate Left", command=lambda: apply_rotate_image_thread(90))
 rotate_left_button.grid(row=6, column=1, padx=5)
 
-rotate_right_button = ttk.Button(tools_frame, text="⏩ Rotate Right", command=lambda: apply_rotate_image_thread(90))
+rotate_right_button = ttk.Button(tools_frame, text="⏩ Rotate Right", command=lambda: apply_rotate_image_thread(-90))
 rotate_right_button.grid(row=6, column=2, padx=5)
 
 # Apply Button

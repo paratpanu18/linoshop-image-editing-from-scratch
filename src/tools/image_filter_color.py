@@ -11,7 +11,7 @@ class FilterType(Enum):
     INVERT = "Invert"
     OUTLINE = "Outline"
 
-FILTER_SETTINGS = {
+FILTER_SETTINGS = {  # B   G   R
     FilterType.COOL_TONE: {
         'scaling': (1.25, 1.05, 0.8), 
         'offset': (0, 0, 0)        
@@ -28,13 +28,13 @@ FILTER_SETTINGS = {
         'scaling': (1.5, 1.5, 1.5),
         'offset': (-50, -50, -50)
     },
-    FilterType.INVERT: {    # Light areas in the original image become dark, and dark areas become light.
-        'scaling': (-1, -1, -1),  # Negative scaling to invert colors
-        'offset': (255, 255, 255)  # Offset so inverted value is in range [0, 255]
+    FilterType.INVERT: {    
+        'scaling': (-1, -1, -1),  
+        'offset': (255, 255, 255)  
     },
     FilterType.OUTLINE: {
-        'scaling': (0, 0, 0),    # Remove color, focus on edges
-        'offset': (255, 255, 255)   # Turn edges to white (outline effect)
+        'scaling': (0, 0, 0),    
+        'offset': (255, 255, 255)   
     }
 }
 
@@ -52,7 +52,7 @@ def apply_filter(image: np.ndarray, filter_type: FilterType) -> np.ndarray:
 
     # Check for the INVERT filter type
     if filter_type == FilterType.INVERT:
-        return cv2.bitwise_not(image)  # Invert colors directly Ex. image(50, 100, 150) invert is image(255-50, 255-100, 255-150)
+        return cv2.bitwise_not(image)  
     
     # Check for the OUTLINE filter type
     if filter_type == FilterType.OUTLINE:
@@ -70,10 +70,8 @@ def apply_outline(image: np.ndarray) -> np.ndarray:
     :param image: Input image in BGR format (height, width, 3).
     :return: Image with outline effect applied.
     """
-
-    grayscale_image = rgb_to_grayscale(image)  # Change variable name to grayscale_image
     # Convert to grayscale for easier edge detection 
-    # It reduces the complexity of processing three color channels (BGR) to just one channel (grayscale).
+    grayscale_image = rgb_to_grayscale(image)  
 
     # Define Sobel kernels for edge detection
     sobel_x = np.array([[1, 0, -1],
@@ -114,8 +112,8 @@ def apply_outline(image: np.ndarray) -> np.ndarray:
     color_outline_image = cv2.cvtColor(outline_image, cv2.COLOR_GRAY2BGR)
 
     # Set a threshold to keep only significant edges
-    mask = (outline_image > 50).astype(np.uint8)  # (If outline_image > 50 are considered edges )
-    color_outline_image[mask == 0] = (255, 255, 255)  # (And below 50 are set to white)
+    mask = (outline_image > 50).astype(np.uint8)  
+    color_outline_image[mask == 0] = (255, 255, 255)  
 
     return color_outline_image
 
